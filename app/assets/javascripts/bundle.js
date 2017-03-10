@@ -21691,6 +21691,8 @@ var _reactDom = __webpack_require__(79);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
+var _session_api_util = __webpack_require__(178);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -21700,7 +21702,43 @@ document.addEventListener("DOMContentLoaded", function () {
     null,
     'BenchBnB!'
   ), root);
+  window.signup = _session_api_util.signup;
+  window.logout = _session_api_util.logout;
+  window.login = _session_api_util.login;
 });
+
+/***/ }),
+/* 178 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var signup = exports.signup = function signup(user) {
+  return $.ajax({
+    type: "POST",
+    url: "api/users",
+    data: { user: user }
+  });
+};
+
+var login = exports.login = function login(user) {
+  return $.ajax({
+    type: "POST",
+    url: "api/session",
+    data: { user: user }
+  });
+};
+
+var logout = exports.logout = function logout() {
+  return $.ajax({
+    type: "DELETE",
+    url: "api/session"
+  });
+};
 
 /***/ })
 /******/ ]);
