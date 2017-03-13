@@ -14191,13 +14191,18 @@ var _benches_reducer = __webpack_require__(385);
 
 var _benches_reducer2 = _interopRequireDefault(_benches_reducer);
 
+var _filter_reducer = __webpack_require__(393);
+
+var _filter_reducer2 = _interopRequireDefault(_filter_reducer);
+
 var _redux = __webpack_require__(89);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var rootReducer = (0, _redux.combineReducers)({
   session: _session_reducer2.default,
-  benches: _benches_reducer2.default
+  benches: _benches_reducer2.default,
+  filters: _filter_reducer2.default
 });
 
 exports.default = rootReducer;
@@ -33085,12 +33090,13 @@ exports.default = SessionForm;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var fetchBenches = exports.fetchBenches = function fetchBenches() {
+var fetchBenches = exports.fetchBenches = function fetchBenches(data) {
   return $.ajax({
     url: "api/benches",
     error: function error(err) {
       return console.log(err);
-    }
+    },
+    data: data
   });
 };
 
@@ -33282,12 +33288,28 @@ var BenchMap = function (_React$Component) {
   _createClass(BenchMap, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
+      var _this2 = this;
+
       var mapOptions = {
         center: { lat: 37.7758, lng: -122.435 },
         zoom: 13
       };
 
       this.map = new google.maps.Map(this.mapNode, mapOptions);
+      var that = this;
+      google.maps.event.addListener(this.map, "idle", function () {
+        var _map$getBounds$toJSON = _this2.map.getBounds().toJSON(),
+            north = _map$getBounds$toJSON.north,
+            east = _map$getBounds$toJSON.east,
+            south = _map$getBounds$toJSON.south,
+            west = _map$getBounds$toJSON.west;
+
+        var bounds = {
+          northEast: { lat: north, lng: east },
+          southWest: { lat: south, lng: west }
+        };
+        that.props.updateFilter("bounds", bounds);
+      });
       this.MarkerManager = new _marker_manager2.default(this.map);
       this.MarkerManager.updateMarkers(this.props.benches);
     }
@@ -33299,10 +33321,10 @@ var BenchMap = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       return _react2.default.createElement('div', { id: 'map-container', ref: function ref(map) {
-          return _this2.mapNode = map;
+          return _this3.mapNode = map;
         } });
     }
   }]);
@@ -33339,12 +33361,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Search = function Search(_ref) {
   var benches = _ref.benches,
-      fetchBenches = _ref.fetchBenches;
+      fetchBenches = _ref.fetchBenches,
+      updateFilter = _ref.updateFilter;
 
   return _react2.default.createElement(
     'div',
     null,
-    _react2.default.createElement(_bench_map2.default, { benches: benches }),
+    _react2.default.createElement(_bench_map2.default, { benches: benches, updateFilter: updateFilter }),
     _react2.default.createElement(_bench_index2.default, { benches: benches, fetchBenches: fetchBenches })
   );
 };
@@ -33366,6 +33389,8 @@ var _reactRedux = __webpack_require__(136);
 
 var _bench_actions = __webpack_require__(384);
 
+var _filter_actions = __webpack_require__(392);
+
 var _search = __webpack_require__(389);
 
 var _search2 = _interopRequireDefault(_search);
@@ -33382,6 +33407,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     fetchBenches: function fetchBenches() {
       return dispatch((0, _bench_actions.fetchBenches)());
+    },
+    updateFilter: function updateFilter(filter, value) {
+      return dispatch((0, _filter_actions.updateFilter)(filter, value));
     }
   };
 };
@@ -33449,6 +33477,73 @@ var MarkerManager = function () {
 }();
 
 exports.default = MarkerManager;
+
+/***/ }),
+/* 392 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.updateFilter = exports.UPDATE_FILTER = undefined;
+
+var _bench_actions = __webpack_require__(384);
+
+var UPDATE_FILTER = exports.UPDATE_FILTER = "UPDATE_FILTER";
+var updateFilter = exports.updateFilter = function updateFilter(filter, value) {
+  return function (dispatch, getState) {
+    dispatch({
+      type: UPDATE_FILTER,
+      filter: filter,
+      value: value
+    });
+    return (0, _bench_actions.fetchBenches)(getState().filters)(dispatch);
+  };
+};
+
+/***/ }),
+/* 393 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _filter_actions = __webpack_require__(392);
+
+var _merge = __webpack_require__(257);
+
+var _merge2 = _interopRequireDefault(_merge);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var _defaultFilters = {
+  bounds: {}
+};
+
+var FilterReducer = function FilterReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _defaultFilters;
+  var action = arguments[1];
+
+  Object.freeze(state);
+  switch (action.type) {
+    case _filter_actions.UPDATE_FILTER:
+      var newFilter = _defineProperty({}, action.filter, action.value);
+      return (0, _merge2.default)({}, state, newFilter);
+    default:
+      return state;
+  }
+};
+
+exports.default = FilterReducer;
 
 /***/ })
 /******/ ]);
