@@ -13954,6 +13954,10 @@ var _app = __webpack_require__(158);
 
 var _app2 = _interopRequireDefault(_app);
 
+var _session_form_container = __webpack_require__(381);
+
+var _session_form_container2 = _interopRequireDefault(_session_form_container);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Root = function Root(_ref) {
@@ -13964,7 +13968,12 @@ var Root = function Root(_ref) {
     _react2.default.createElement(
       _reactRouter.Router,
       { history: _reactRouter.hashHistory },
-      _react2.default.createElement(_reactRouter.Route, { path: '/', component: _app2.default })
+      _react2.default.createElement(
+        _reactRouter.Route,
+        { path: '/', component: _app2.default },
+        _react2.default.createElement(_reactRouter.Route, { path: '/login', component: _session_form_container2.default }),
+        _react2.default.createElement(_reactRouter.Route, { path: '/signup', component: _session_form_container2.default })
+      )
     )
   );
 };
@@ -32869,6 +32878,187 @@ document.addEventListener("DOMContentLoaded", function () {
   window.logout = _session_actions.logout;
   window.login = _session_actions.login;
 });
+
+/***/ }),
+/* 381 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _reactRedux = __webpack_require__(136);
+
+var _session_form = __webpack_require__(382);
+
+var _session_form2 = _interopRequireDefault(_session_form);
+
+var _session_actions = __webpack_require__(53);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var processForm = function processForm(dispatch, ownProps) {
+  if (ownProps.location.pathname.slice(1) === 'login') {
+    return function (user) {
+      return dispatch((0, _session_actions.login)(user));
+    };
+  } else {
+    return function (user) {
+      return dispatch((0, _session_actions.signup)(user));
+    };
+  }
+};
+
+var mapStateToProps = function mapStateToProps(state, ownProps) {
+  return {
+    loggedIn: Boolean(state.session.currentUser),
+    errors: state.session.errors,
+    formType: ownProps.location.pathname.slice(1)
+  };
+};
+
+var mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    processForm: processForm(dispatch, ownProps)
+  };
+};
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_session_form2.default);
+
+/***/ }),
+/* 382 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(5);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouter = __webpack_require__(146);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var SessionForm = function (_React$Component) {
+  _inherits(SessionForm, _React$Component);
+
+  function SessionForm(props) {
+    _classCallCheck(this, SessionForm);
+
+    var _this = _possibleConstructorReturn(this, (SessionForm.__proto__ || Object.getPrototypeOf(SessionForm)).call(this, props));
+
+    _this.state = {
+      username: "",
+      password: ""
+    };
+    _this.handleSubmit = _this.handleSubmit.bind(_this);
+    _this.renderHeader = _this.renderHeader.bind(_this);
+    _this.handleInput = _this.handleInput.bind(_this);
+    _this.renderLink = _this.renderLink.bind(_this);
+    return _this;
+  }
+
+  _createClass(SessionForm, [{
+    key: 'renderHeader',
+    value: function renderHeader() {
+      if (this.props.formType === 'login') {
+        return _react2.default.createElement(
+          'h2',
+          null,
+          'Log In'
+        );
+      } else {
+        return _react2.default.createElement(
+          'h2',
+          null,
+          'Sign Up'
+        );
+      }
+    }
+  }, {
+    key: 'handleSubmit',
+    value: function handleSubmit(e) {
+      var _this2 = this;
+
+      e.preventDefault();
+      var user = Object.assign({}, this.state);
+      this.props.processForm(user).then(this.setState({ username: "", password: "" })).then(function () {
+        return _this2.props.router.push("/");
+      });
+    }
+  }, {
+    key: 'handleInput',
+    value: function handleInput(field) {
+      var _this3 = this;
+
+      return function (e) {
+        _this3.setState(_defineProperty({}, field, e.currentTarget.value));
+      };
+    }
+  }, {
+    key: 'renderLink',
+    value: function renderLink() {
+      if (this.props.formType === 'login') {
+        return _react2.default.createElement(
+          _reactRouter.Link,
+          { to: '/signup' },
+          'Sign Up'
+        );
+      } else {
+        return _react2.default.createElement(
+          _reactRouter.Link,
+          { to: '/login' },
+          'Log In'
+        );
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'form',
+        { onSubmit: this.handleSubmit },
+        this.renderHeader(),
+        _react2.default.createElement(
+          'label',
+          null,
+          'Username',
+          _react2.default.createElement('input', { onChange: this.handleInput("username"), value: this.state.username })
+        ),
+        _react2.default.createElement(
+          'label',
+          null,
+          'Password',
+          _react2.default.createElement('input', { type: 'password', onChange: this.handleInput("password"), value: this.state.password })
+        ),
+        _react2.default.createElement('input', { type: 'submit' }),
+        this.renderLink()
+      );
+    }
+  }]);
+
+  return SessionForm;
+}(_react2.default.Component);
+
+exports.default = SessionForm;
 
 /***/ })
 /******/ ]);
