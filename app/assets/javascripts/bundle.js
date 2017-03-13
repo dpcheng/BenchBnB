@@ -13962,6 +13962,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Root = function Root(_ref) {
   var store = _ref.store;
+
+  var _redirectIfLoggedIn = function _redirectIfLoggedIn(nextState, replace) {
+    if (store.getState().session.currentUser) {
+      replace('/');
+    }
+  };
+
   return _react2.default.createElement(
     _reactRedux.Provider,
     { store: store },
@@ -13971,8 +13978,8 @@ var Root = function Root(_ref) {
       _react2.default.createElement(
         _reactRouter.Route,
         { path: '/', component: _app2.default },
-        _react2.default.createElement(_reactRouter.Route, { path: '/login', component: _session_form_container2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: '/signup', component: _session_form_container2.default })
+        _react2.default.createElement(_reactRouter.Route, { path: '/login', onEnter: _redirectIfLoggedIn, component: _session_form_container2.default }),
+        _react2.default.createElement(_reactRouter.Route, { path: '/signup', onEnter: _redirectIfLoggedIn, component: _session_form_container2.default })
       )
     )
   );
