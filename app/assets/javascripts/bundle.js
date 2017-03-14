@@ -33268,6 +33268,8 @@ var _marker_manager = __webpack_require__(391);
 
 var _marker_manager2 = _interopRequireDefault(_marker_manager);
 
+var _reactRouter = __webpack_require__(146);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -33294,8 +33296,8 @@ var BenchMap = function (_React$Component) {
         center: { lat: 37.7758, lng: -122.435 },
         zoom: 13
       };
-
-      this.map = new google.maps.Map(this.mapNode, mapOptions);
+      var map = this.refs.map;
+      this.map = new google.maps.Map(map, mapOptions);
       var that = this;
       google.maps.event.addListener(this.map, "idle", function () {
         var _map$getBounds$toJSON = _this2.map.getBounds().toJSON(),
@@ -33310,6 +33312,10 @@ var BenchMap = function (_React$Component) {
         };
         that.props.updateFilter("bounds", bounds);
       });
+
+      google.maps.event.addListener(this.map, "click", function () {
+        // TODO: 
+      });
       this.MarkerManager = new _marker_manager2.default(this.map);
       this.MarkerManager.updateMarkers(this.props.benches);
     }
@@ -33321,18 +33327,14 @@ var BenchMap = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _this3 = this;
-
-      return _react2.default.createElement('div', { id: 'map-container', ref: function ref(map) {
-          return _this3.mapNode = map;
-        } });
+      return _react2.default.createElement('div', { id: 'map-container', ref: 'map' });
     }
   }]);
 
   return BenchMap;
 }(_react2.default.Component);
 
-exports.default = BenchMap;
+exports.default = (0, _reactRouter.withRouter)(BenchMap);
 
 /***/ }),
 /* 389 */
@@ -33488,19 +33490,24 @@ exports.default = MarkerManager;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateFilter = exports.UPDATE_FILTER = undefined;
+exports.changeFilter = exports.updateFilter = exports.UPDATE_FILTER = undefined;
 
 var _bench_actions = __webpack_require__(384);
 
 var UPDATE_FILTER = exports.UPDATE_FILTER = "UPDATE_FILTER";
+
 var updateFilter = exports.updateFilter = function updateFilter(filter, value) {
   return function (dispatch, getState) {
-    dispatch({
-      type: UPDATE_FILTER,
-      filter: filter,
-      value: value
-    });
+    dispatch(changeFilter(filter, value));
     return (0, _bench_actions.fetchBenches)(getState().filters)(dispatch);
+  };
+};
+
+var changeFilter = exports.changeFilter = function changeFilter(filter, value) {
+  return {
+    type: UPDATE_FILTER,
+    filter: filter,
+    value: value
   };
 };
 
